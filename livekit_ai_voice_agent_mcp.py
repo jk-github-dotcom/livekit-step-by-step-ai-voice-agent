@@ -170,18 +170,11 @@
 # from hume.tts import PostedUtteranceVoiceWithName
 
 
-# In[1]:
-
-
-# import json
-
-
 # In[7]:
 
 
 from dotenv import load_dotenv
 import asyncio
-import json # use json for transcript
 
 from livekit import agents
 from livekit.agents import AgentSession, Agent, RoomInputOptions
@@ -202,20 +195,6 @@ load_dotenv()
 class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(instructions="You are a helpful voice AI assistant.")
-
-    # send transcript
-    async def on_user_speaking_complete(self, transcript: str) -> None:
-        print("📣 Final user transcript:", transcript)
-        try:
-            if self.session:
-                await self.session.send_data(json.dumps({
-                    "speaker": "user",
-                    "text": transcript
-                }).encode("utf-8"))
-            else:
-                print("⚠️ No session object found.")
-        except Exception as e:
-            print("❌ Failed to send transcript:", e)
 
 async def entrypoint(ctx: agents.JobContext):
     session = AgentSession(
@@ -244,12 +223,12 @@ async def entrypoint(ctx: agents.JobContext):
         ]         
     )
     
-    agent=Assistant()
+    agent=Assistant() # or agent=Assistant() in session.start()
     
     print("🎤 Starting session...")
     await session.start(
         room=ctx.room,
-        agent=agent, # which is agent=Assistant(),
+        agent=agent, # see comment agent=Assistant()
         room_input_options=RoomInputOptions(
             # LiveKit Cloud enhanced noise cancellation
             # - If self-hosting, omit this parameter
