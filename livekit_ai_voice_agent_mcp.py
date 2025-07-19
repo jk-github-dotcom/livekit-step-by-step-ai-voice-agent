@@ -70,8 +70,9 @@
 # See documantation (voice by name, id or even generated)
 
 #from livekit.plugins import hume
-#from hume.tts import PostedUtteranceVoiceWithName
+#from hume.tts import PostedUtteranceVoiceWithName (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
 
+# livekit-plugins-hume==1.0.23
 #session = AgentSession(
 #   tts=hume.TTS(
 #      voice=PostedUtteranceVoiceWithName(name="Colton Rivers", provider="HUME_AI"),
@@ -79,6 +80,12 @@
 #   )
 # ... llm, stt, etc.
 #)
+# livekit-plugins-hume==1.2.1
+#        tts=hume.TTS(
+#            voice=hume.VoiceByName(name="Colton Rivers", provider=hume.VoiceProvider.hume),
+#            description="The voice exudes calm, serene, and peaceful qualities, like a gentle stream flowing through a quiet forest.",
+#            voice=hume.VoiceById(id="0bae3af7-1f3a-426e-9285-13015427577c"),
+#        ),
 
 
 # In[ ]:
@@ -127,6 +134,26 @@
 #!pip install livekit-agents[mcp]~=1.0
 
 
+# In[ ]:
+
+
+# requirements.txt
+
+#python-dotenv
+
+#livekit-agents[deepgram,openai,cartesia,hume,elevenlabs,silero,turn-detector]~=1.0
+#livekit-agents[mcp]~=1.0
+
+#livekit-plugins-noise-cancellation~=0.2
+
+# or alternatively for deepgram,openai,cartesia,hume,elevenlabs
+#livekit-plugins-deepgram
+#livekit-plugins-openai
+#livekit-plugins-cartesia
+#livekit-plugins-hume
+#livekit-plugins-elevenlabs
+
+
 # In[8]:
 
 
@@ -164,7 +191,7 @@
 #load_dotenv()
 
 
-# In[5]:
+# In[2]:
 
 
 # from hume.tts import PostedUtteranceVoiceWithName
@@ -187,8 +214,8 @@ from livekit.plugins import (
 )
 from livekit.plugins.turn_detector.multilingual import MultilingualModel # LiveKit turn detector plugin
 
-from hume.tts import PostedUtteranceVoiceWithName
-from hume.tts import PostedUtteranceVoiceWithId
+# from hume.tts import PostedUtteranceVoiceWithName (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
+# from hume.tts import PostedUtteranceVoiceWithId (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
 
 load_dotenv()
 
@@ -201,10 +228,9 @@ async def entrypoint(ctx: agents.JobContext):
         stt=openai.STT(model="gpt-4o-transcribe"),
         llm=openai.LLM(model="gpt-4o-mini"),
 #        tts=hume.TTS(
-##            voice=PostedUtteranceVoiceWithName(name="Ava Song", provider="HUME_AI"),
-##            voice=PostedUtteranceVoiceWithName(name="Warm Irish Woman", provider="CUSTOM_VOICE"),
-#            voice=PostedUtteranceVoiceWithId(id="0bae3af7-1f3a-426e-9285-13015427577c"),
-##            description="The voice exudes calm, serene, and peaceful qualities, like a gentle stream flowing through a quiet forest.",
+#            voice=hume.VoiceByName(name="Colton Rivers", provider=hume.VoiceProvider.hume),
+#            description="The voice exudes calm, serene, and peaceful qualities, like a gentle stream flowing through a quiet forest.",
+#            voice=hume.VoiceById(id="0bae3af7-1f3a-426e-9285-13015427577c"),
 #        ),
         tts=openai.TTS(
             model="gpt-4o-mini-tts",
