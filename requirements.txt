@@ -1,6 +1,6 @@
 python-dotenv
 
-livekit-agents[deepgram,openai,cartesia,hume,elevenlabs,silero,turn-detector]~=1.0
+livekit-agents[openai,silero,turn-detector]~=1.0
 livekit-agents[mcp]~=1.0
 
 livekit-plugins-noise-cancellation~=0.2
