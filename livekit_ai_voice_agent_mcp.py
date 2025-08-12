@@ -8,6 +8,9 @@
 
 # https://docs.livekit.io/agents/start/voice-ai/
 
+# https://github.com/jk-github-dotcom/livekit-step-by-step-ai-voice-agent
+# https://dashboard.render.com/web/srv-d1udm5c9c44c73csmkdg/settings
+
 
 # In[2]:
 
@@ -47,7 +50,7 @@
 # https://docs.livekit.io/agents/integrations/stt/openai/
 # https://pypi.org/project/livekit-plugins-openai/
 # Parameter: model, language (model: gpt-4o-transcribe (default) or whisper-1)
-# OPENAI_API_KEY in .venv
+# OPENAI_API_KEY in .env
 # pip install livekit-plugins-openai
 
 # LLM:
@@ -55,7 +58,7 @@
 # https://docs.livekit.io/agents/integrations/llm/openai/
 # https://pypi.org/project/livekit-plugins-openai/
 # Parameter: model, temperature, tool_choice (model: gpt-4o-mini (default) or gpt-4o or o1)
-# OPENAI_API_KEY in .venv
+# OPENAI_API_KEY in .env
 # pip install livekit-plugins-openai
 
 # TTS
@@ -67,12 +70,13 @@
 # pip install livekit-plugins-hume
 
 # Usage:
-# See documantation (voice by name, id or even generated)
+# See documentation (voice by name, id or even generated)
 
 #from livekit.plugins import hume
 #from hume.tts import PostedUtteranceVoiceWithName (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
 
 # livekit-plugins-hume==1.0.23
+
 #session = AgentSession(
 #   tts=hume.TTS(
 #      voice=PostedUtteranceVoiceWithName(name="Colton Rivers", provider="HUME_AI"),
@@ -80,7 +84,9 @@
 #   )
 # ... llm, stt, etc.
 #)
+
 # livekit-plugins-hume==1.2.1
+
 #        tts=hume.TTS(
 #            voice=hume.VoiceByName(name="Colton Rivers", provider=hume.VoiceProvider.hume),
 #            description="The voice exudes calm, serene, and peaceful qualities, like a gentle stream flowing through a quiet forest.",
@@ -111,27 +117,13 @@
 
 # .env
 
-#OPENAI_API_KEY=<Your OpenAI API Key>
-#HUME_API_KEY=<Your Hume API Key>
+#LIVEKIT_URL=wss://aivoiceassistant-yf8o74l4.livekit.cloud
 #LIVEKIT_API_KEY=<your API Key>
 #LIVEKIT_API_SECRET=<your API Secret>
-#LIVEKIT_URL=wss://aivoiceassistant-yf8o74l4.livekit.cloud
 
-
-# In[ ]:
-
-
-# Python Packages
-
-#!pip install python-dotenv
-
-#!pip install livekit-plugins-openai
-#!pip install livekit-plugins-hume
-
-#!pip install livekit-agents[openai,openai,hume,silero,turn-detector]~=1.0
-#!pip install livekit-plugins-noise-cancellation~=0.2
-
-#!pip install livekit-agents[mcp]~=1.0
+#OPENAI_API_KEY=<Your OpenAI API Key>
+#HUME_API_KEY=<Your Hume API Key>
+...
 
 
 # In[ ]:
@@ -152,24 +144,6 @@
 #livekit-plugins-cartesia
 #livekit-plugins-hume
 #livekit-plugins-elevenlabs
-
-
-# In[8]:
-
-
-#from dotenv import load_dotenv
-
-#from livekit import agents
-#from livekit.agents import AgentSession, Agent, RoomInputOptions
-#from livekit.plugins import (
-#    openai,
-#    hume,
-#    noise_cancellation,
-#    silero,
-#)
-#from livekit.plugins.turn_detector.multilingual import MultilingualModel
-
-#load_dotenv()
 
 
 # In[1]:
@@ -194,7 +168,8 @@
 # In[2]:
 
 
-# from hume.tts import PostedUtteranceVoiceWithName
+# from hume.tts import PostedUtteranceVoiceWithName (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
+# from hume.tts import PostedUtteranceVoiceWithId (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
 
 
 # In[7]:
@@ -212,7 +187,20 @@ from livekit.plugins import (
     noise_cancellation,
     silero, # Silero VAD plugin
 )
-from livekit.plugins.turn_detector.multilingual import MultilingualModel # LiveKit turn detector plugin
+# deployemnt on render fails because of memory restriction (512 MB) (python livekit_ai_voice_agent_mcp.py download-files)
+# following documentation https://docs.livekit.io/agents/build/turns/turn-detector/
+# try EnglishModel
+# Model	Base    Model	        Size on Disk    Per Turn Latency
+# English-only	SmolLM2-135M	66 MB	        ~15-45 ms
+# Multilingual	Qwen2.5-0.5B	281 MB	        ~50-160 ms
+
+# from livekit.plugins.turn_detector.multilingual import MultilingualModel # LiveKit turn detector plugin
+from livekit.plugins.turn_detector.english import EnglishModel
+# session = AgentSession(
+#    turn_detection=EnglishModel(),
+#    stt=openai.STT(model="gpt-4o-transcribe", language = "en"),
+#    # ... vad, stt, tts, llm, etc.
+#) 
 
 # from hume.tts import PostedUtteranceVoiceWithName (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
 # from hume.tts import PostedUtteranceVoiceWithId (only livekit-plugins-hume==1.0.23 not newest livekit-plugins-hume==1.2.1)
@@ -225,7 +213,8 @@ class Assistant(Agent):
 
 async def entrypoint(ctx: agents.JobContext):
     session = AgentSession(
-        stt=openai.STT(model="gpt-4o-transcribe"),
+#        stt=openai.STT(model="gpt-4o-transcribe"),
+        stt=openai.STT(model="gpt-4o-transcribe", language = "en"), # because of turn detection
         llm=openai.LLM(model="gpt-4o-mini"),
 #        tts=hume.TTS(
 #            voice=hume.VoiceByName(name="Colton Rivers", provider=hume.VoiceProvider.hume),
@@ -238,7 +227,8 @@ async def entrypoint(ctx: agents.JobContext):
             instructions="Speak in a friendly and conversational tone.",
         ),
         vad=silero.VAD.load(),
-        turn_detection=MultilingualModel(),
+        turn_detection=EnglishModel(),
+#        turn_detection=MultilingualModel(),
         mcp_servers=[
             mcp.MCPServerHTTP(
 #                "https://jn2atbn3.rpcld.cc/mcp/9dd7b985-3694-40e5-a1d6-f9fe3c941dfe/sse" # See "N8N 2025-05-22 MCP server"
@@ -298,13 +288,16 @@ if __name__ == "__main__":
 # In[ ]:
 
 
-# Download livekit_ai_voice_agent.py 
+# Step 00: Save and export notebook as executable script livekit_ai_voice_agent.py 
 
 
 # In[ ]:
 
 
-# Download model files
+# Step 01: Download model files
+
+# Run in project directory and in your virtual environment .venv_livekit
+# python livekit_ai_voice_agent_mcp.py download-files (in this case already done by python livekit_ai_voice_agent.py download-files)
 
 # To use the turn-detector, silero, or noise-cancellation plugins, you first need to download the model files:
 # C:\Users\Gebruiker\.cache\huggingface\hub\models--livekit--turn-detector
@@ -313,21 +306,10 @@ if __name__ == "__main__":
 # In[ ]:
 
 
-# Run in directory jupyter_notebook and in your virtual environment .venv_livekit
+# Step 02 Option 01: Speak to your agent via console
 
-# python livekit_ai_voice_agent_mcp.py download-files (already done by python livekit_ai_voice_agent.py download-files)
-
-
-# In[ ]:
-
-
-# Speak to your agent
-# Run in directory jupyter_notebook and in your virtual environment .venv_livekit
+# Run in project directory and in your virtual environment .venv_livekit
 # Start your agent in console mode to run inside your terminal:
-
-
-# In[ ]:
-
 
 # python livekit_ai_voice_agent_mcp.py console
 
@@ -335,19 +317,18 @@ if __name__ == "__main__":
 # In[ ]:
 
 
-# Connect to playground
-# Run in directory jupyter_notebook and in your virtual environment .venv_livekit
+# Step 02 Option 02: Speak to your agent via livekit playground
+
+# Run in project directory and in your virtual environment .venv_livekit
 # Start your agent in dev mode to connect it to LiveKit and make it available from anywhere on the internet:
-
-
-# In[ ]:
-
 
 # python livekit_ai_voice_agent_mcp.py dev
 
 
 # In[ ]:
 
+
+# More information:
 
 # Use the Agents playground to speak with your agent and explore its full range of multimodal capabilities.
 
@@ -365,10 +346,22 @@ if __name__ == "__main__":
 # In[ ]:
 
 
-# I can access the agent
+# Step 02 Option 03: Speak to your agent via livekit sandbox
+
+# I can access the agent on the internet
+
 #    via the Livekit playground: https://agents-playground.livekit.io/
+
 #    via the Livekit Sandbox directly: https://synchronized-server-2h6j7i.sandbox.livekit.io/ 
 #    via the Livekit Sandbox overview: https://cloud.livekit.io/projects/p_34qw70e3usd/sandbox
+
+
+# In[ ]:
+
+
+# Step 02 Option 04: Speak to your agent via your own frontend
+
+# See documentations README.md in project livekit-step-by-step for the frontend, the token server and this voice agent
 
 
 # In[ ]:
