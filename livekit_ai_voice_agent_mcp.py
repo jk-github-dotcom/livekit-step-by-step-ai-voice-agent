@@ -183,7 +183,7 @@ from livekit.agents import AgentSession, Agent, RoomInputOptions
 from livekit.agents import mcp
 from livekit.plugins import (
     openai,
-    hume,
+#    hume,
     noise_cancellation,
     silero, # Silero VAD plugin
 )
